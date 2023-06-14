@@ -1,6 +1,6 @@
 wipefs -a /dev/sda
 parted /dev/sda mklabel gpt
-parted /dev/sda mkapart primary fat32 1MB 501MB
+parted /dev/sda mkpart primary fat32 1MB 501MB
 parted /dev/sda set 1 boot on
 parted /dev/sda mkpart primary ext4 501MB 100%
 mkfs.fat -F 32 /dev/sda1
