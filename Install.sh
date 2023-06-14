@@ -29,7 +29,7 @@ mount "${drive}2" /mnt
 mkdir -p /mnt/boot
 mount "${drive}1" /mnt/boot
 
-# Install base system and necessary packages
+# Install base system
 pacstrap -K /mnt base linux linux-firmware networkmanager grub efibootmgr
 
 # Generate fstab
@@ -37,6 +37,9 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Ask the user for a hostname
 read -p "Please enter a hostname for the system: " hostname
+
+# Ask the user for additional packages to install
+read -p "Enter additional packages to install (space-separated): " additional_packages
 
 # Chroot into the installed system
 arch-chroot /mnt /bin/bash <<EOF
@@ -51,8 +54,7 @@ arch-chroot /mnt /bin/bash <<EOF
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
   grub-mkconfig -o /boot/grub/grub.cfg
 
-  # Ask the user for additional packages to install
-  read -p "Enter additional packages to install (space-separated): " additional_packages
+  # Install additional packages if provided
   if [[ -n "$additional_packages" ]]; then
     pacman -S --noconfirm $additional_packages
   fi
@@ -70,4 +72,3 @@ if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
 else
     echo "Reboot canceled."
 fi
-
