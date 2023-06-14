@@ -42,16 +42,32 @@ read -p "Please enter a hostname for the system: " hostname
 arch-chroot /mnt /bin/bash <<EOF
   ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
   hwclock --systohc
-  echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-  echo "LANG=en_US.UTF-8" > /etc/locale.conf
+  echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
+  echo "LANG=en_GB.UTF-8" > /etc/locale.conf
   echo "KEYMAP=uk" > /etc/vconsole.conf
   echo "$hostname" > /etc/hostname
   locale-gen
   systemctl enable NetworkManager
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
   grub-mkconfig -o /boot/grub/grub.cfg
+
+  # Ask the user for additional packages to install
+  read -p "Enter additional packages to install (space-separated): " additional_packages
+  if [[ -n "$additional_packages" ]]; then
+    pacman -S --noconfirm $additional_packages
+  fi
+
   exit
 EOF
 
 # Set the password for the installed system
 chroot /mnt passwd
+
+read -p "Do you want to reboot? (y/n): " confirm
+
+if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+    reboot
+else
+    echo "Reboot canceled."
+fi
+
